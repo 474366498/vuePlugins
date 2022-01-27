@@ -1,5 +1,7 @@
 # Vue 3 + Typescript + Vite
 
+## 前端代码 集中于 src  后台代码(node) 置于 server
+
 This template should help get you started developing with Vue 3 and Typescript in Vite.
 
 ## Recommended IDE Setup
