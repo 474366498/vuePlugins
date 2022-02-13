@@ -12,14 +12,14 @@ app.get('/', (req, res) => {
   res.send('app index')
 })
 app.get('/upload/:id', (req, res) => {
-  res.send('file')
+  res.send('<img src="https://tse1-mm.cn.bing.net/th/id/R-C.b102e96fc559231358e1e7d92daa6a64?rik=JSIb2iiWxX0SRA&riu=http%3a%2f%2fwww.panpan.org%2fjh2012uploads%2fallimg%2f130522%2f1-130522153104133.jpg&ehk=A7bbW6Xf%2buRgJsBYNp9Ug3Wd2EwhQN%2fKNT51h5jaedQ%3d&risl=&pid=ImgRaw&r=0" />')
   console.log(15, req.params)
 })
 app.post('/upload', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('content-type', 'text/plain;charset=UTF-8')
   var busboy = Busboy({ headers: req.headers })
-  var filePath = path.join(path.normalize(__dirname), 'upload')
+  var filePath = path.join(path.normalize(__dirname), '../upload')
   var fileInfo = []
   busboy.on('file', (name, file, info) => {
     const { filename, encoding, mimeType } = info
@@ -29,7 +29,8 @@ app.post('/upload', (req, res) => {
     var fstream = fs.createWriteStream(filePath + '/' + _filename)
     fileInfo.push({
       name: iconv.decode(filename, 'utf8'),
-      url: filePath + '/' + _filename
+      url: filePath + '/' + _filename,
+      src: 'https://tse1-mm.cn.bing.net/th/id/R-C.b102e96fc559231358e1e7d92daa6a64?rik=JSIb2iiWxX0SRA&riu=http%3a%2f%2fwww.panpan.org%2fjh2012uploads%2fallimg%2f130522%2f1-130522153104133.jpg&ehk=A7bbW6Xf%2buRgJsBYNp9Ug3Wd2EwhQN%2fKNT51h5jaedQ%3d&risl=&pid=ImgRaw&r=0?' + _filename
     })
     file.on('data', (data) => {
       console.log(21, data, data.length)
@@ -43,8 +44,7 @@ app.post('/upload', (req, res) => {
       })
 
   }).on('finish', function () {
-    console.log('%c req start___________________________-----------------------------------------------------------', 'background:red;color:white;')
-    // console.log(33, req.files)
+
     res.send({
       code: 200, data: fileInfo, msg: '上传完了'
     })

@@ -25,3 +25,29 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
 3. Open `src/main.ts` in VSCode
 4. Open the VSCode command palette
 5. Search and run "Select TypeScript version" -> "Use workspace version"
+
+
+
+## 文件目录结构说明 ##
+server node 环境启动代码 安装内容具体看package
+src vue3 vite 前端代码
+
+
+
+22.2.13 
+  文件上传 文件分片上传 重复上传时 后台 node报错 ？？ 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,6 +18,7 @@ const routes = [
       { path: '/buriedPoint', alias: '/bp', name: 'buriedPoint', component: () => import('@/pages/buriedPoint/index.vue') },
       { path: '/editor', name: 'Editor', component: () => import('@/pages/editor/index.vue') },
       { path: '/upload', name: 'Upload', component: () => import('@/pages/upload/index.vue') },
+      { path: '/bigFile', name: 'BigFile', component: () => import('@/pages/big-file/index.vue') },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]
   }

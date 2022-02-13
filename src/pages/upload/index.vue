@@ -1,9 +1,10 @@
 <template>
   <section>
+    <h1><a href='https://juejin.cn/post/6844903968338870285#heading-19' target='_blank' >来源</a></h1>
     <div >
         选择文件(可多选):
         <input type="file" id="f1" @change="e=>onChangeFile(e)" multiple/><br/><br/>
-        <div ref="drop" class="drop-box" style="width:600px;height:400px;border:1px solid red;">
+        <div ref="drop" class="drop-box" style="width:600px;height:200px;border:1px solid red;">
             拖拽文件到页面的操作 <br/>
             拖拽文件到页面的操作 <br/>
             拖拽文件到页面的操作 <br/>
@@ -11,11 +12,16 @@
             拖拽文件到页面的操作 <br/>
 
         </div>
+        <br/><br/>
+        <div class="editor-box" id="editor" contenteditable="true" style="width:600px;height:200px;border:1px solid pink;overflow-y:auto;text-align:left;" >
+          可以直接粘贴图片到这里直接上传
+        </div>
+        <br/><br/>
         <button type="button" id="btn-submit" @click="e=>upload01(e)">普通上传</button><br/><br/>
-        <button type="button" @click="e=>upload02(e)">有进度状态的上传</button> <br/><br/>
+        <button type="button" @click="e=>upload02(e)" :disabled="prevBoolean">有进度状态的上传</button> <br/><br/>
         <button type="button" id="btn-submit"  @click="e=>upload03(e)">上 传 并 预 览</button>
     </div>
-
+    <br/><br/>
         
     <div class="img-box" v-if="prevBoolean && prevList.length">
       <div class="img" v-for="item in prevList" :key="item.blob">
@@ -83,6 +89,27 @@ export default defineComponent({
         }, 5000);
       },false)
     }
+
+    const editor = document.querySelector('#editor') as HTMLDivElement
+    editor.addEventListener('paste',function (event:Event) {
+      console.log('pas',event,window)
+      var data = event.clipboardData || window.clipboardData
+      console.log(data)
+      var items = data.items 
+      var fileList = [] 
+      if(items && items.length) {
+        for(let i = 0 ; i < items.length ; i++) {
+          fileList.push(items[i].getAsFile())
+        }
+      }
+      console.log(104,fileList)
+      if(fileList.length > 0) {
+        event.preventDefault()
+        // node upload-demo
+        submitUpload(fileList,editor)
+      }
+
+    })
   },
   setup (prop,context) {
     console.log(22,prop,context)
@@ -99,7 +126,7 @@ export default defineComponent({
     }
     watch(fileList,(newFiles,oldFiles)=>{
       console.log(prevBoolean)
-      if(prevBoolean && newFiles.length){
+      if(prevBoolean.value && newFiles.length){
         console.log(42,newFiles)
         for(let i = 0 ; i < newFiles.length;i++){
           let file = newFiles[i]
@@ -121,6 +148,7 @@ export default defineComponent({
         // prevList
       }
     })
+    // node upload-demo
     const upload01 = (e:Event)=>{
       console.log(24,e)
       console.log(fileList.value)
@@ -128,6 +156,7 @@ export default defineComponent({
       if(!fileList.value || fileList.value.length < 1) return false
       var fd = new FormData()
       fd.append('title','file')
+      fd.append('cname','普通上传')
       for(let i = 0 ; i < fileList.value.length ; i++) {
         fd.append('file_'+(i+1),fileList.value[i])
       }
@@ -141,11 +170,13 @@ export default defineComponent({
       }
       xhr.send(fd)
     }
-    // 
+    // node upload-progress
     const upload02 = (e:Event) => {
+      if(prevBoolean.value) return false
       if(!fileList.value || fileList.value.length < 1) return false 
       var fd = new FormData()
       fd.append('title','进度文件')
+      fd.append('cname','进度上传')
       for(let i = 0 ; i < fileList.value.length;i++) {
         fd.append('file',fileList.value[i])
       }
@@ -157,7 +188,7 @@ export default defineComponent({
         }
       }
       xhr.onprogress=updateProgress
-      xhr.upload.onprogress = updateProgress
+      // xhr.upload.onprogress = updateProgress
       function updateProgress (event:any){
         console.log(56,event)
         if(event.lengthComputable){
@@ -167,25 +198,29 @@ export default defineComponent({
       }
       xhr.send(fd)
     }
-
+    // node upload-prew
     const upload03 = (e:Event) => {
-      console.log(85,fileList,fileList.value.length)
+      console.log(85,prevList,prevList.value.length)
       if(!prevList.value.length){
         return 
+      }else{
+        xhrSend(prevList.value)
       }
-      prevList.value.forEach(item=>{
-        xhrSend(item)
-        })
     }
-    function xhrSend ({file,progress}){
-      console.log(file,progress)
+    function xhrSend (fileList){ 
+      console.log(209,fileList)
       var abortFn = function () {
         if(xhr && xhr.readyState !== 4) {
           xhr.abort()
         }
       }
       var fd = new FormData()
-      fd.append('file',file)
+      fd.append('title','可以预览文件')
+      fd.append('cname','预览上传')
+      fileList.forEach(item => {
+        console.log(219,item)
+        fd.append('file',item.file)
+      });
       var xhr = new XMLHttpRequest()
       xhr.open('POST',api,true)
 
@@ -197,14 +232,14 @@ export default defineComponent({
       }
 
       xhr.onprogress = uplaodProgress
-      xhr.upload.onprogress = uplaodProgress
+      // xhr.upload.onprogress = uplaodProgress
 
       function uplaodProgress (event:Event){
         if(event.lengthComputable){
           var completedPercent = (event.loaded / event.total * 100).toFixed(2);
           if(completedPercent >= 100){
-
             console.log('已上传',completedPercent); 
+            prevList.value = []
           }
         }
       }
@@ -222,6 +257,42 @@ export default defineComponent({
     }
   }
 })
+
+var submitUpload = function (files:[] , editor , api='http://192.168.2.100:8000/upload') {
+  console.log(files)
+  var formData = new FormData()
+  files.forEach(file=>{
+    formData.append('file',file)
+  })
+  var xhr = new XMLHttpRequest()
+  xhr.open('POST',api,true)
+  xhr.onreadystatechange = function () {
+    if(xhr.readyState === 4){
+      console.log(261,xhr.responseText)
+      let res = JSON.parse(xhr.responseText)
+      if(res.data && res.data.length){
+        let files = res.data
+        console.log(files)
+        let img = document.createElement('img')
+        img.src = files[0].src 
+        img.style.width = '100px'
+        insertNodeToEditor(editor,img)
+      }
+    }
+  }
+  xhr.send(formData)
+}
+
+function insertNodeToEditor(editor:HTMLDivElement ,img:HTMLImageElement) {
+  var range 
+  var node = window.getSelection()?.anchorNode
+  if(node !=null) {
+    range = window.getSelection()?.getRangeAt(0)
+    range?.insertNode(img) 
+  }else{
+    editor.append(img)
+  }
+}
 </script>
 
 <style lang="scss" scoped>

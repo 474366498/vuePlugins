@@ -39,12 +39,9 @@ app.use((ctx) => {
   console.log(39, ctx.request.files)
   var files = ctx.request.files ? ctx.request.files.file : []
   var result = []
-  // console.log(36, files, Array.isArray(files))
-  if (!Array.isArray(files)) {
-    files = [files]
-  }
-  console.log(45, files)
-  files && files.forEach((file) => {
+  console.log(36, Array.isArray(files))
+
+  files && files.length > 0 && files.forEach(file => {
     console.log(47, file.path)
     var path = file.path.replace(/\\/g, '/')
     var fname = file.name

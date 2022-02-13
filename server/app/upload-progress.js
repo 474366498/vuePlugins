@@ -46,7 +46,7 @@ app.use(async (ctx, next) => {
 app.use((ctx) => {
   var files = ctx.request.files ? ctx.request.files.file : []
   var result = []
-  console.log(36, files, Array.isArray(files))
+  console.log(36, files.length, Array.isArray(files))
   if (!Array.isArray(files)) {
     files = [files]
   }
