@@ -1,0 +1,31 @@
+@import './settings/index.scss' ;
+@import './small/index.scss' ;
+@import './medium/index.scss' ;
+
+$themes : (
+  theme-medium : $theme-medium ,
+  theme-small : $theme-small
+) ;
+
+$theme-map : null;
+
+
+@mixin theming () {
+  @each $theme-name , $map in $themes {
+    [data-theme = "#{$theme-name}"] & {
+      $theme-map : () !global ;
+      @each $key , $value in $map {
+        $theme-map : map-merge(
+          $theme-map , ($key:$value)
+        ) !global;
+      }
+      @content;
+    }
+  }
+}
+
+@function themed($key) {
+  @return map-get($theme-map,$key)
+}
+
+

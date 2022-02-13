@@ -47,7 +47,6 @@ VMdEditor.use(githubTheme, {
 // v-md-editor end*/
 
 
-
 console.log(4, defectives, ElementPlus, tinymce)
 
 const app = createApp(App)
