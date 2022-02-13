@@ -31,13 +31,19 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
 
 
 ## 文件目录结构说明 ##
-server node 环境启动代码 安装内容具体看package
-src vue3 vite 前端代码
+1. server node 环境启动代码 安装内容具体看package
+2. src vue3 vite 前端代码
+
+## 路由与页面内容说明 ##
+
+1. buriedPoint 页面埋点
+2. editor vue富文本编辑器  部分内容在v3下不兼容 `需要后期进行修改`
+3. upload 上传 与server中有关联 `需要启动node服务开启上传接口`
+4. big-file 大文件分片上传 `重复上传时 后台 node报错 ？？`
 
 
 
-22.2.13 
-  文件上传 文件分片上传 重复上传时 后台 node报错 ？？ 
+
   
 
 
