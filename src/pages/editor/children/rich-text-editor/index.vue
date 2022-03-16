@@ -13,7 +13,7 @@
   </section>
 </template>
 <script>
-import TinymceEditor from './tinymceEditor/index.vue'
+// import TinymceEditor from './tinymceEditor/index.vue'
 import MavonUseEditor from './mavonEditor/index.vue'
 // import WangUseEditor from './wangEditor/index.vue'
 // import CKUseEditor from './CKEditor/index.vue'
@@ -40,7 +40,7 @@ export default {
     }
   },
   components : {
-    TinymceEditor ,
+    // TinymceEditor ,
     MavonUseEditor ,
     // WangUseEditor ,
     // CKUseEditor

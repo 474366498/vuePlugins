@@ -2,7 +2,7 @@ import Vue, { createApp } from 'vue'
 import naive, { create, NButton, NInput } from 'naive-ui'   // naive-ui
 import ElementPlus from 'element-plus'   // element-plus vue 3
 import 'element-plus/dist/index.css'     // element-plus css
-import tinymce from '_tinymce@5.10.2@tinymce'  // tinymce 5
+import tinymce from 'tinymce'  // tinymce 5
 
 import router from './router/index'
 import App from './App.vue'

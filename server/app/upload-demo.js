@@ -11,6 +11,22 @@ var app = express()
 app.get('/', (req, res) => {
   res.send('app index')
 })
+
+app.get('/files', (req, res) => {
+  let _d = path.resolve(__dirname, '../upload/bigFile')
+  console.log(17, _d)
+  fs.readdir(_d, function (err, files) {
+    if (err) {
+      console.log(17, err)
+    } else {
+      console.log('files:', files)
+    }
+  })
+  res.send({
+    code: 200,
+    data: '文件夹'
+  })
+})
 app.get('/upload/:id', (req, res) => {
   res.send('<img src="https://tse1-mm.cn.bing.net/th/id/R-C.b102e96fc559231358e1e7d92daa6a64?rik=JSIb2iiWxX0SRA&riu=http%3a%2f%2fwww.panpan.org%2fjh2012uploads%2fallimg%2f130522%2f1-130522153104133.jpg&ehk=A7bbW6Xf%2buRgJsBYNp9Ug3Wd2EwhQN%2fKNT51h5jaedQ%3d&risl=&pid=ImgRaw&r=0" />')
   console.log(15, req.params)

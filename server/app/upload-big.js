@@ -32,69 +32,81 @@ app.use(async (ctx, next) => {
 })
 
 app.use(ctx => {
-  // console.log(35, ctx.request)
-  var body = ctx.request.body
-  var files = ctx.request.files ? ctx.request.files.f1 : []
-  var result = []
-  var fileToken = body.token
-  var fileIndex = body.index
-  if (files) {
-    console.log(39, files.path, files.name)
-  } else {
-    console.log(44, body)
-  }
-
-  if (files && !Array.isArray(files)) {
-    files = [files]
-  }
-
-  files && files.forEach(item => {
-    // console.log(49, item)
-    var path = item.path.replace(/\\/g, '/'),
-      fname = item.name,
-      nextPath = path.slice(0, path.lastIndexOf('/') + 1) + fileIndex + '-' + fileToken;
-    if (item.size > 0 && path) {
-      var extArr = fname.split('.'),
-        ext = extArr[extArr.length - 1];
-      fs.renameSync(path, nextPath)
-
-      result.push(uploadHost + nextPath.slice(nextPath.lastIndexOf('/') + 1))
-    }
-  })
-  console.log(60, result)
-  ctx.body = `{
-    'fileUrl' : ${JSON.stringify(result)}
+  console.log(3500, ctx.method)
+  if (ctx.method === 'GET') {
+    ctx.body = `{
+    'fileUrl' : ${JSON.stringify(ctx.request.url)}
   }`
+  }
+  else {
+    var body = ctx.request.body
+    // console.log(37, body)
+    var files = ctx.request.files ? ctx.request.files.f1 : []
+    var result = []
+    var fileToken = body.token
+    var fileIndex = body.index
+    if (files) {
+      console.log(39, files.path, files.name)
+    } else {
+      console.log(44, body)
+    }
 
-  if (body.type === 'merge') {
-    var filename = body.filename,
-      chunkcount = body.chunkcount,
-      folder = path.resolve(__dirname, '../upload/bigFile') + '/';
-    var writeSteam = fs.createWriteStream(`${folder}${filename}`)
-    console.log(74, filename,
-      chunkcount,
-      writeSteam ? writeSteam.path : '合并错误')
-    var cindex = 0;
-    function mergeFile() {
-      var fname = `${folder}${cindex}-${fileToken}`,
-        readStream = fs.createReadStream(fname);
-      readStream.pipe(writeSteam, { end: false })
-      readStream.on('end', function () {
-        fs.unlink(fname, function (err) {
-          if (err) {
-            throw err
+    if (files && !Array.isArray(files)) {
+      files = [files]
+    }
+
+    files && files.forEach(item => {
+      // console.log(49, item)
+      var path = item.path.replace(/\\/g, '/'),
+        fname = item.name,
+        nextPath = path.slice(0, path.lastIndexOf('/') + 1) + fileIndex + '-' + fileToken;
+      if (item.size > 0 && path) {
+        var extArr = fname.split('.'),
+          ext = extArr[extArr.length - 1];
+        fs.renameSync(path, nextPath)
+
+        result.push(uploadHost + nextPath.slice(nextPath.lastIndexOf('/') + 1))
+      }
+    })
+    console.log(60, result)
+    ctx.body = `{
+      'fileUrl' : ${JSON.stringify(result)}
+    }`
+
+    if (body.type === 'merge') {
+      var filename = body.filename,
+        chunkcount = body.chunkcount,
+        folder = path.resolve(__dirname, '../upload/bigFile') + '/';
+      var writeSteam = fs.createWriteStream(`${folder}${filename}`)
+      console.log(74, filename,
+        chunkcount, writeSteam,
+        writeSteam ? writeSteam.path : '合并错误')
+      var cindex = 0;
+      function mergeFile() {
+        var fname = `${folder}${cindex}-${fileToken}`,
+          readStream = fs.createReadStream(fname);
+        readStream.pipe(writeSteam, { end: false })
+        readStream.on('end', function () {
+          fs.unlink(fname, function (err) {
+            if (err) {
+              throw err
+            } else {
+              console.log(94, fname)
+              ctx.body = `{
+                'fileUrl' : ${fname}
+              }`
+            }
+          })
+          if (cindex + 1 < chunkcount) {
+            cindex += 1
+            mergeFile()
           }
         })
-        if (cindex + 1 < chunkcount) {
-          cindex += 1
-          mergeFile()
-        }
-      })
+      }
+      mergeFile()
+      console.log('merge ok ')
     }
-    mergeFile()
-    console.log('merge ok ')
   }
-
 })
 
 

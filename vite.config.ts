@@ -26,7 +26,7 @@ export default ({ command, mode }) => {
     base: './',
     plugins: [vue()],
     optimizeDeps: {
-      // include: ['schart.js']
+      include: ['mammoth']
     },
     resolve: {
       alias: {
@@ -37,7 +37,7 @@ export default ({ command, mode }) => {
       host: envConfig.VITE_HOST,
       port: envConfig.VITE_PORT,
       // 是否自动在浏览器打开
-      open: true,
+      open: false,
       // 是否开启 https
       https: false,
       // 服务端渲染

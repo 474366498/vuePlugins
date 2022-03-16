@@ -8,7 +8,8 @@
     "s1" : "supervisor app/upload-demo.js" ,
     "s2" : "supervisor app/upload-progress.js",
     "s3" : "supervisor app/upload-prew.js",
-    "s4" : "supervisor app/upload-big.js"
+    "s4" : "supervisor app/upload-big.js" ,
+    "work":"supervisor app/app-worker.js"
 
   },
   "keywords": [],

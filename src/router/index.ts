@@ -19,6 +19,13 @@ const routes = [
       { path: '/editor', name: 'Editor', component: () => import('@/pages/editor/index.vue') },
       { path: '/upload', name: 'Upload', component: () => import('@/pages/upload/index.vue') },
       { path: '/bigFile', name: 'BigFile', component: () => import('@/pages/big-file/index.vue') },
+      { path: '/webWorker', name: 'WebWorker', component: () => import('@/pages/web-worker/index.vue') },
+      {
+        path: '/parse', name: 'Parse', component: () => import('@/pages/parse/index.vue')
+      },
+      {
+        path: '/fileView', name: 'fileView', component: () => import('@/pages/file-view/index.vue')
+      },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]
   }
