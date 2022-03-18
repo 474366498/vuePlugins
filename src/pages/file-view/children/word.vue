@@ -21,7 +21,7 @@ export default defineComponent({
     onMounted(()=>{
       console.log('来了',props.path)
       if(props.path) {
-         resolveWord(props.path)
+        resolveWord(props.path)
       }
     }) 
 
