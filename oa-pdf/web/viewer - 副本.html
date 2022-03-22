@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <meta name="google" content="notranslate"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>PDF.js viewer</title>
+
+    <link rel="stylesheet" href="viewer.css" />
+    <script src="../pdf.js"><!-- pdf --></script>
+    <script src="../xlsx.full.min.js"><!-- execl --></script>
+    <script src="../mammoth.min.js"><!-- word --></script>
+    <script type="text/javascript" src=""></script>
+  </head>
+  <style>
+    table{
+      border: 1px solid #333;
+      border-collapse: collapse;
+      margin: 20px auto;
+      width: 100%;
+    }
+    table th , table td{
+      border: 1px solid #333;
+    }
+  </style>
+
+  <body tabindex="1" class="loadingInProgress" style="background-color: rgba(0,0,0,.15);">
+    <ul id="fileUl">
+      
+    </ul>
+    <p id="fileInfo"></p>
+    <div id="fileOpt" style="display: flex;justify-content: space-around;">
+      <div class="">
+        <span onclick="pdfViewOpt('letting')">缩小</span>
+        <span onclick="pdfViewOpt('enlarge')">放大</span>
+      </div>
+      <div>
+        <span onclick="pdfViewOpt('prev')">prev</span>
+        <span onclick="pdfViewOpt('next')">next</span>
+      </div>
+      <div>
+        <span onclick="fileComOpts('print')">print</span>
+        <span onclick="fileComOpts('down')">下载</span>
+      </div>
+    </div>
+    <div id="fileView" style="display:flex;justify-content: center;flex-direction: column;">
+      
+    </div>
+   
+
+  </body>
+  <script type="text/javascript">
+    PDFJS.workerSrc = '../pdf.worker.js' // globalSettings
+    // http://127.0.0.1:3000/files/node.pdf
+    let hostPath  = 'http://127.0.0.1:3000/';
+    let fileList = [
+      {"index":1,"path":"files/node.pdf"},
+      {"index":2,"path":"files/a1.xls"},
+      {"index":3,"path":"files/a1.xlsx"},
+      {"index":4,"path":"files/b1.doc"},
+      {"index":5,"path":"files/b1.docx"},
+      {"index":6,"path":"files/cc.pptx"}
+    ];
+    
+
+    window.onload = function () {
+      console.log(PDFJS , XLSX , mammoth );
+      var fileUl = document.getElementById('fileUl')  // 文件列表 ul
+      var fileView = document.getElementById('fileView') // 附件展示 节点
+      var fileOpt = document.getElementById('fileOpt')   // 预览操作
+      var filePrint = document.getElementById('print-frame')
+      let ulHtml = ''
+      for(let i = 0 ; i< fileList.length;i ++ ){
+        let file = fileList[i]
+        ulHtml += `<li>${file.path} <span source="${file.path}">点点</span></li>`
+      }
+      fileUl.innerHTML = ulHtml;
+
+      fileUl.addEventListener('click',function (e){
+        if(e.target.nodeName =='SPAN'){
+          console.log(e.target,e.target.getAttribute('source'))
+          let source = e.target.getAttribute('source')
+          fileInfo.path = source
+        }
+      },false)
+
+      let fileInfo = { } // 预览文件信息 如文件地址 文件转换后的html代码..
+      Object.defineProperty(fileInfo,'path',{
+        configurable : true ,
+        set (newV){
+          this._path = newV
+          createFileView(newV)
+          console.log('set',newV)
+        },
+        get (){
+          console.log('get',this._path)
+          return this._path
+        }
+      })
+      // 创建预览文件相关 fileInfo type 监听实现
+      function createFileView (path) {
+        let fileType = path.split('.')[1]
+        let filePath = hostPath + path 
+        console.log(fileType , filePath)
+        switch (fileType) {
+          case 'pdf':
+            pdfFileView(filePath)
+            pdfFilePrint(filePath)
+          break ;
+          case 'xls':
+          case 'xlsx' :
+            execlFileView(filePath)
+          break ;
+          case 'doc':
+          alert('不支持doc')
+          break ;
+          case 'docx':
+          wordFileView(filePath)
+          break ;
+          case 'pptx':
+          break ;
+
+        }
+      }
+      // PDF START 
+      let viewPdfInfo = {}  // 预览的pdf文件信息  
+
+      Object.defineProperties(viewPdfInfo,{
+        // type : 'pdf' ,
+        // data : pdf ,
+        // pages : pdf.numPages ,
+        // redraw : false ,
+        // page : 1 ,
+        // scale : 1
+        type : {
+            configurable : true ,
+            set (newV) {
+              this.type = newV
+            },
+            get () {
+              return this.type
+            }
+        },
+        // data : pdf ,
+        // pages : pdf.numPages ,
+        page : {
+          configurable : true ,
+          set (newV) {
+            console.log(79,this)
+            this.page = newV
+          },
+          get () {
+            return this.page
+          }
+        } ,
+        scale : {
+          configurable : true ,
+          set(newV) {
+            this.scale = newV
+          },
+          get () {
+            return this.scale
+          }
+        }
+      })
+
+      //  pdf 预览
+      function pdfFileView (path){
+        fetch(path,{
+          method :'GET',
+          responseType : 'arraybuffer'
+        }).then(res=>res.arrayBuffer())
+          .then(ab => {
+            console.log(104,ab)
+            const loadingTask = PDFJS.getDocument(ab)
+            loadingTask.promise.then(pdf=> {
+              if (pdf){
+                viewPdfInfo = { 
+                  type : 'pdf' ,
+                  data : pdf ,
+                  pages : pdf.numPages ,
+                  redraw:false ,
+                  page : 1 ,
+                  scale : 1
+                }
+                console.log(111,viewPdfInfo)
+                pdf.getPage(viewPdfInfo.page).then(P => {
+                  let canvas = pdfCanvas(P,viewPdfInfo.page , viewPdfInfo.scale) 
+                  fileView.append(canvas)
+
+                  console.log(115,P)
+                })
+              }else {
+                console.error('没有解析出来！！')
+              }
+              
+            })
+          })
+        // const loadingTask = PDFJS.getDocument(path)
+        // console.log(98,loadingTask)
+      }
+      
+      // pdfFilePrint pdf 打印iframe
+      function pdfFilePrint(path){
+        console.log(207,path)
+        if(!document.getElementById('print-frame')){
+          let printIframe = document.createElement('iframe')
+          printIframe.setAttribute('id','print-frame')
+          printIframe.setAttribute('src',path)
+          document.body.appendChild(printIframe)
+        }
+      }
+
+      // 操作 
+      pdfViewOpt = function (key){
+        console.log(155,key)
+        switch(key){
+          case 'next' : 
+            if (viewPdfInfo.page < viewPdfInfo.pages){
+              viewPdfInfo.page ++
+            }else{
+              viewPdfInfo.page = viewPdfInfo.pages
+            }
+          break ;
+          case 'prev' :
+          if(viewPdfInfo.page > 1){
+             viewPdfInfo.page -- 
+          }else{
+            viewPdfInfo.page = 1
+          }
+          break ;
+          case 'letting':
+            viewPdfInfo.scale -= 0.1
+            viewPdfInfo.redraw = true
+          break ;
+          case 'enlarge':
+          viewPdfInfo.scale += 0.1
+            viewPdfInfo.redraw = true
+          break ;
+          
+        }
+        if(key !=='down' && viewPdfInfo.type === 'pdf'){
+          pdfViewPaging()
+        }
+        console.log(207,viewPdfInfo)
+      }
+
+      // pdf 翻页 
+      function pdfViewPaging() {  // class pdf-canvas id pdf-canvas-{}
+        console.log(235,viewPdfInfo)
+        let {page ,redraw , scale , data } = viewPdfInfo
+        if(!redraw){
+          if(!document.getElementById(`pdf-canvas-${page}`)){
+            console.log('又画一个')
+            data.getPage(page).then(P => {
+              let canvas = pdfCanvas(P,page , scale) 
+              viewPdfInfo.redraw = false
+              fileView.append(canvas)
+            })
+          }
+          var canvas = document.querySelectorAll('.pdf-canvas')
+          canvas.forEach((can,index)=>{
+            if(index+1 == page){
+              can.style.display = 'block'
+            }else{
+              can.style.display = 'none'
+            }
+          })
+          console.log(252,canvas)
+        }else{
+          data.getPage(page).then(P => {
+            let canvas = pdfCanvas(P,page , scale) 
+            viewPdfInfo.redraw = false
+          })
+        }
+      }
+
+      // pdf canvas 绘制   
+      function pdfCanvas (data,page,scale) {
+        let canvas
+        if(document.getElementById(`pdf-canvas-${page}`)){
+          canvas = document.getElementById(`pdf-canvas-${page}`)
+
+        }else{
+          canvas = document.createElement('canvas')
+          canvas.setAttribute('class',`pdf-canvas`)
+          canvas.setAttribute('id',`pdf-canvas-${page}`)
+        }
+        const ctx = canvas.getContext('2d')
+        const viewport = data.getViewport(scale)
+        console.log(120,viewport)
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+        // 画布的dom大小, 设置移动端,宽度设置铺满整个屏幕
+        const clientWidth = document.body.clientWidth
+        canvas.style.width = (viewport.width > clientWidth ? (clientWidth - 100) : viewport.width) + 'px'
+        // 根据pdf每页的宽高比例设置canvas的高度
+        canvas.style.height = (viewport.width > clientWidth ? (clientWidth - 100) * (viewport.height / viewport.width) : viewport.height)+ 'px'
+        data.render({
+          canvasContext: ctx,
+          viewport
+        }) 
+        return canvas
+      }
+      // PDF END 
+
+      // EXECL start
+      // fetch arrayBuffer => workbook
+      function execlFileView (path) {
+        console.log(305,path)
+        fetch(path,{
+          method : 'GET' ,
+          responseType : 'arraybuffer'
+        }).then(res=>res.arrayBuffer())
+          .then(ab =>{
+            // Uint8Array
+            console.log(311,ab)
+            let data = new Uint8Array(ab)
+            var workbook = XLSX.read(data,{type:'array'})
+            console.log(312,workbook)
+            execlSheetObj(workbook)
+          })
+      }
+      // workbook 提取 sheet 内容
+      function execlSheetObj (wb) {
+        console.log(322,wb)
+        var sheetNames = wb.SheetNames 
+        let csvData = {}
+        sheetNames.map(item => {
+          let sheet = wb.Sheets[item]
+          csvData[item] = XLSX.utils.sheet_to_csv(sheet)
+        })
+        csvDataToTable(csvData)
+      }
+      function csvDataToTable(csvData){
+        console.log(56,csvData)
+        let html = ''
+        for(let key in csvData){
+          console.log(key)
+          html += `<table attr-source='${key}' title='${key}' >`
+          html += csvToTable(csvData[key])
+          html += `</table>`
+          console.log(62,html)
+        }
+        fileView.innerHTML = html
+        fileInfo.data = html
+      }
+      function csvToTable(csv){
+        console.log(322,csv)
+        let rows = csv.split('\n')
+        rows.pop()
+        let html = '' 
+        rows.forEach((row,index)=>{
+          let columns = row.split(',')
+          columns.unshift(index+1)
+          html += '<tr>'
+            for(let i = 0 ; i < columns.length;i++) {
+              html += index === 0 
+              ? `<th>${(i == 0 ? '1' : String.fromCharCode(65+i -1))}</th>` 
+              : `<td>${columns[i]}</td>`
+            }
+          html+= '</tr>'
+        })
+        console.log(345,html)
+        return html
+      }
+      // EXECL end
+
+      // WORD start 
+      function wordFileView(path){
+        console.log(379,path)
+        fetch(path,{
+          method : 'GET' ,
+          responseType : 'arraybuffer'
+        }).then(res=>res.arrayBuffer())
+          .then(ab=>{
+            mammoth.convertToHtml({arrayBuffer:ab}).then(res=>{
+              console.log(387,res)
+               fileView.innerHTML = res.value
+               fileInfo.data = res.value
+            })
+          })
+      }
+
+      // 文件公共操作 (下载 打印)
+      fileComOpts = function (key) {
+        console.log(fileInfo)
+        if(!fileInfo.path) return 
+        if (key === 'down'){
+          console.log(374,'down',hostPath + fileInfo.path)
+          fetch(hostPath+fileInfo.path,{
+            method : 'GET' ,
+            responseType:'blob'
+          }).then(res=>{
+            return res.blob()
+          }).then(b => {
+            let reader = new FileReader()
+            reader.readAsDataURL(b)
+            reader.onload = function (e){
+              console.log(384,e)
+              var a = document.createElement('a')
+              // 'files/node.pdf'
+              var fileName = fileInfo.path.substring(fileInfo.path.lastIndexOf('/')+1)
+              a.download = fileName 
+              a.href = e.target.result 
+              document.body.appendChild(a)
+              a.click()
+              document.body.removeChild(a)
+            }
+          }) 
+        }else {
+          console.log(396,fileInfo)
+          if(fileInfo._path.match(/\.pdf$/g) ){
+            let printIframe = document.getElementById('print-frame')
+            console.log(412,'pdf',printIframe,'跨页面操作涉及域的概念（origin），错误的意思是：未捕获的安全错误：阻止了一个域为null的frame页面访问另一个域为null的页面。代码运行时在本地直接用浏览器打开的，地址栏是file:///的页面，只需改为localhost访问就行。')
+            printIframe.contentWindow.focus()
+            printIframe.contentWindow.print()
+          }else{
+            if(/\.(xls|xlsx)$/.test(fileInfo._path)){
+              console.log('execl')
+            }else{
+              console.log('word')
+            }
+            console.log(`%c let printWin = window.open('new page path','_blank') ; 
+                            printWin.document.write(css str + fileInfo.data) ;
+                            printWin.document.close()
+                            printWin.print()
+                            printWin.close() 
+              `,'background:rgba(0,0,0,.1);color:red;')
+          }
+        }
+      }
+    };
+    
+  </script>
+</html>
+

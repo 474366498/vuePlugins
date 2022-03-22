@@ -4,12 +4,14 @@
       <span @click="e=>onChangeViewPage(false)">prev</span>
       <span>{{page}}</span>
       <span @click="e=>onChangeViewPage(true)">next</span>
+      <span @click="e=>onPrintPdf()">print</span>
     </div>
     <div id="pdf-el">
       <template v-for="item in pages" :key="item">
         <canvas v-if="item === page" :id="`pdf-${item}`" ></canvas>
       </template>
     </div>
+    <!-- <iframe id="print-iframe" :src="'http://127.0.0.1:3000/'+path" style="display:none"></iframe> -->
   </section>
 </template>
 <script lang="ts">
@@ -37,6 +39,7 @@ export default defineComponent({
       console.log('来了',props.path)
       if(props.path) {
          resolvePdf(props.path)
+         createPrintIframe(props.path)
       }
     }) 
     // watchEffect(()=>{
@@ -108,9 +111,38 @@ export default defineComponent({
         // }
       })
     } 
+    const createPrintIframe = path => {
+      let url = `http://127.0.0.1:3000/`+path
+      let iframe:HTMLIFrameElement = document.createElement('iframe')
+      iframe.setAttribute('id','print-iframe')
+      iframe.setAttribute('src',url)
+      iframe.style.opacity = '0'
+      document.body.appendChild(iframe)
+    }
+    const onPrintPdf = () =>  {
+      let pi:HTMLIFrameElement = document.getElementById('print-iframe')
+      pi.contentWindow?.focus()
+      pi.contentWindow?.print()
+      // let url = `http://127.0.0.1:3000/`+path
+      // fetch(url,{
+      //   method:'GET',
+      //   responseType:'arraybuffer'
+      // }).then(res=>res.blob())
+      //   .then(data => {
+      //     console.log(data)
+      //     let url = window.URL.createObjectURL(data)
+      //     let printIframe:HTMLIFrameElement = document.createElement('iframe')
+      //     printIframe.setAttribute('id','printIfram')
+      //     printIframe.setAttribute('src',url)
+      //     document.body.appendChild(printIframe)
+
+      //     printIframe.contentWindow.print()
+      //   })
+    }
     return {
       ...toRefs(pdfInfo) ,
-      onChangeViewPage
+      onChangeViewPage ,
+      onPrintPdf
     }
   }
 })

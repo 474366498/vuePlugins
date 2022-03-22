@@ -26,6 +26,9 @@ const routes = [
       {
         path: '/fileView', name: 'fileView', component: () => import('@/pages/file-view/index.vue')
       },
+      {
+        path: '/fileViewPrint', name: 'fileViewPrint', component: () => import('@/pages/file-view-print/index.vue')
+      },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]
   }
