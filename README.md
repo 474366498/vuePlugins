@@ -466,8 +466,73 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
 
 ```
 
+[Video视频画中画效果实例页面](https://www.zhangxinxu.com/study/201812/video-picture-in-picture-demo.php)
+张鑫旭 -- HTML5 video视频播放Picture-in-Picture画中画技术 [link](https://www.zhangxinxu.com/wordpress/2018/12/html5-video-play-picture-in-picture/)
 
+```html 
+<video id="video" src="./fish.mp4" controls playsinline loop></video>
+<input type="button" id="pipBtn" value="点击进入画中画状态">
 
+```
+
+```style 
+   video { max-width:100%; }
+
+```
+
+```javascript
+var pipWindow;
+
+pipBtn.addEventListener('click', function(event) {
+  log('切换Picture-in-Picture模式...');
+  // 禁用按钮，防止二次点击
+  this.disabled = true;
+  try {
+    if (video !== document.pictureInPictureElement) {
+      // 尝试进入画中画模式
+      video.requestPictureInPicture();      
+    } else {
+      // 退出画中画
+      document.exitPictureInPicture();
+    }
+  } catch(error) {
+    log('&gt; 出错了！' + error);
+  } finally {
+    this.disabled = false;
+  }
+});
+
+// 点击切换按钮可以触发画中画模式，
+// 在有些浏览器中，右键也可以切换，甚至可以自动进入画中画模式
+// 因此，一些与状态相关处理需要在专门的监听事件API中执行
+video.addEventListener('enterpictureinpicture', function(event) {
+  log('&gt; 视频已进入Picture-in-Picture模式');
+  pipBtn.value = pipBtn.value.replace('进入', '退出');
+
+  pipWindow = event.pictureInPictureWindow;
+  log('&gt; 视频窗体尺寸为：'+ pipWindow.width +' x ' + pipWindow.height);
+  
+  // 添加resize事件，一切都是为了测试API
+  pipWindow.addEventListener('resize', onPipWindowResize);
+});
+// 退出画中画模式时候
+video.addEventListener('leavepictureinpicture', function(event) {
+  log('&gt; 视频已退出Picture-in-Picture模式');
+  pipBtn.value = pipBtn.value.replace('退出', '进入');
+  // 移除resize事件
+  pipWindow.removeEventListener('resize', onPipWindowResize);
+});
+// 视频窗口尺寸改变时候执行的事件
+var onPipWindowResize = function (event) {
+  log('&gt; 窗口尺寸改变为：'+ pipWindow.width +' x ' + pipWindow.height);
+}
+/* 特征检测 */
+if ('pictureInPictureEnabled' in document == false) {
+  log('当前浏览器不支持视频画中画。');
+  togglePipButton.disabled = true;
+}
+
+```
 
 
 
