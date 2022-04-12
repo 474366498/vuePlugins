@@ -45,7 +45,9 @@ export default ({ command, mode }) => {
       base: envConfig.VITE_BASE_URL,
       outDir: envConfig.VITE_OUTPUT_DIR,
       proxy: {
-        '/api': 'http://192.168.2.100:8000'
+        '/api': 'http://192.168.2.100:8000',
+        '/music': 'http://m701.music.126.net/',
+        '/video': 'https://media.w3.org/'
       },
       define: {
         'process.env': {}

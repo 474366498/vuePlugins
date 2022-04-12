@@ -29,6 +29,9 @@ const routes = [
       {
         path: '/fileViewPrint', name: 'fileViewPrint', component: () => import('@/pages/file-view-print/index.vue')
       },
+      {
+        path: '/multimedia', name: 'multimedia', component: () => import('@/pages/multimedia/index.vue')
+      },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]
   }
