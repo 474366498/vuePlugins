@@ -32,6 +32,10 @@ const routes = [
       {
         path: '/multimedia', name: 'multimedia', component: () => import('@/pages/multimedia/index.vue')
       },
+      {
+        path: '/test', name: 'test',
+        component:() => import('@/pages/test/index.vue')
+      },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]
   }
