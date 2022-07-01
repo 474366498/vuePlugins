@@ -1,4 +1,6 @@
 # Vue 3 + Typescript + Vite
+gitee  https://gitee.com/auqsse/vue-plugins.git
+github https://github.com/474366498/vuePlugins.git
 
 ## 前端代码 集中于 src  后台代码(node) 置于 server
 
