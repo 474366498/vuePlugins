@@ -14,7 +14,7 @@ https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html
 
 export function bMapJsonp() {
   return new Promise((resolve, reject) => {
-    window.onBMapInitialize = () => resolve(BMap)
+    window.onBMapInitialize = () => resolve(BMapGL)
     const scriptEl = document.createElement('script')
     scriptEl.type = 'text/javascript'
     scriptEl.setAttribute('id', 'b-gl-map-script')
