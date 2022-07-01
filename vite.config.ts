@@ -47,7 +47,8 @@ export default ({ command, mode }) => {
       proxy: {
         '/api': 'http://192.168.2.100:8000',
         '/music': 'http://m701.music.126.net/',
-        '/video': 'https://media.w3.org/'
+        '/video': 'https://media.w3.org/',
+        '/pv': 'http://pv.sohu.com/cityjson?ie=utf-8'
       },
       define: {
         'process.env': {}

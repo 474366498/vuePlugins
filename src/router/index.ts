@@ -34,7 +34,15 @@ const routes = [
       },
       {
         path: '/test', name: 'test',
-        component:() => import('@/pages/test/index.vue')
+        component: () => import('@/pages/test/index.vue')
+      },
+      {
+        path: '/tMap', name: 'tMap',
+        component: () => import('@/pages/tMap/index.vue')
+      },
+      {
+        path: '/bMap', name: 'bMap',
+        component: () => import('@/pages/bMap/index.vue')
       },
       { path: '/error', name: 'Error', component: () => import('@/pages/error/index.vue') }
     ]

@@ -8,6 +8,7 @@ import router from './router/index'
 import App from './App.vue'
 import defectives from './utils/directive/index'
 import track from './utils/directive/track'
+import './app.css'
 
 /* v-md-editor start
 import VMdEditor from '@kangc/v-md-editor/lib/codemirror-editor';
